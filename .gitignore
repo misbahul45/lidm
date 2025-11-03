@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+__pycache__/
+.env
+*.env
+db_data/
+
+# Build outputs
+dist/
+.next/
+.nuxt/
+.cache/
+out/
+
+# Docker
+*.pid
+*.log
+
+# Python
+*.pyc
+.venv/
+
+# Misc
+.DS_Store
