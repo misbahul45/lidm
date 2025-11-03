@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -12,7 +10,7 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432" # 🔧 ubah host port agar tidak bentrok dengan PostgreSQL lokal
+      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -26,12 +24,7 @@ services:
     container_name: cervana_redis
     restart: always
     ports:
-      - "6380:6379" # 🔧 ubah host port agar tidak bentrok dengan Redis lokal
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      - "6380:6379"
     networks:
       - cervana_network
 
@@ -45,18 +38,15 @@ services:
       - "3002:3002"
     volumes:
       - ./api:/app
-      - /app/node_modules
-    command: pnpm dev
+    command: pnpm start:dev
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/cervana
       REDIS_HOST: redis
       REDIS_PORT: 6379
       PORT: 3002
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - postgres
+      - redis
     networks:
       - cervana_network
 
@@ -70,10 +60,9 @@ services:
       - "3003:3003"
     volumes:
       - ./ai-api:/app
-    command: uv run uvicorn main:app --host 0.0.0.0 --port 3003
+    command: uv run uvicorn main:app --host 0.0.0.0 --port 3003 --reload
     depends_on:
-      api:
-        condition: service_started
+      - api
     networks:
       - cervana_network
 
@@ -87,10 +76,8 @@ services:
       - "3000:3000"
     volumes:
       - ./web:/app
-      - /app/node_modules
     command: pnpm dev --host 0.0.0.0 --port 3000
     environment:
-      PORT: 3000
       NUXT_PUBLIC_API_URL: http://api:3002
     depends_on:
       - api
@@ -108,10 +95,8 @@ services:
       - "3001:3001"
     volumes:
       - ./admin:/app
-      - /app/node_modules
     command: pnpm dev --host 0.0.0.0 --port 3001
     environment:
-      PORT: 3001
       PUBLIC_API_URL: http://api:3002
     depends_on:
       - api
