@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:15-alpine
@@ -36,9 +38,11 @@ services:
       - ./api/.env
     ports:
       - "3002:3002"
+    # 👉 hanya mount kode sumber, bukan seluruh folder
     volumes:
-      - ./api:/app
-    command: pnpm start:dev
+      - ./api/src:/app/src
+      - ./api/prisma:/app/prisma
+    command: sh -c "pnpm dev --host 0.0.0.0 --port 3002"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/cervana
       REDIS_HOST: redis
