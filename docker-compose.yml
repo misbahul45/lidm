@@ -38,10 +38,6 @@ services:
       - ./cervana-api/.env
     ports:
       - "3002:3002"
-    volumes:
-      - ./cervana-api/src:/app/src
-      - ./cervana-api/prisma:/app/prisma
-    command: pnpm dev --host 0.0.0.0 --port 3002
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/cervana
       REDIS_HOST: redis
@@ -62,9 +58,7 @@ services:
     ports:
       - "3003:3003"
     volumes:
-      - ./ai-api-cervana:/app
       - ~/.cache/huggingface:/root/.cache/huggingface
-    command: uv run uvicorn main:app --host 0.0.0.0 --port 3003 --reload
     depends_on:
       - api
     networks:
@@ -78,9 +72,6 @@ services:
       - ./web-cervana/.env
     ports:
       - "3000:3000"
-    volumes:
-      - ./web-cervana:/app
-    command: pnpm dev --host 0.0.0.0 --port 3000
     environment:
       NUXT_PUBLIC_API_URL: http://api:3002
     depends_on:
@@ -97,9 +88,6 @@ services:
       - ./admin-cervana/.env
     ports:
       - "3001:3001"
-    volumes:
-      - ./admin-cervana:/app
-    command: pnpm dev --host 0.0.0.0 --port 3001
     environment:
       PUBLIC_API_URL: http://api:3002
     depends_on:
