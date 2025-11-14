@@ -31,18 +31,17 @@ services:
       - cervana_network
 
   api:
-    build: ./api
+    build: ./cervana-api
     container_name: cervana_api
     restart: always
     env_file:
-      - ./api/.env
+      - ./cervana-api/.env
     ports:
       - "3002:3002"
-    # 👉 hanya mount kode sumber, bukan seluruh folder
     volumes:
-      - ./api/src:/app/src
-      - ./api/prisma:/app/prisma
-    command: sh -c "pnpm dev --host 0.0.0.0 --port 3002"
+      - ./cervana-api/src:/app/src
+      - ./cervana-api/prisma:/app/prisma
+    command: pnpm dev --host 0.0.0.0 --port 3002
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/cervana
       REDIS_HOST: redis
@@ -55,15 +54,16 @@ services:
       - cervana_network
 
   ai-api:
-    build: ./ai-api
+    build: ./ai-api-cervana
     container_name: cervana_ai_api
     restart: always
     env_file:
-      - ./ai-api/.env
+      - ./ai-api-cervana/.env
     ports:
       - "3003:3003"
     volumes:
-      - ./ai-api:/app
+      - ./ai-api-cervana:/app
+      - ~/.cache/huggingface:/root/.cache/huggingface
     command: uv run uvicorn main:app --host 0.0.0.0 --port 3003 --reload
     depends_on:
       - api
@@ -71,15 +71,15 @@ services:
       - cervana_network
 
   web:
-    build: ./web
+    build: ./web-cervana
     container_name: cervana_web
     restart: always
     env_file:
-      - ./web/.env
+      - ./web-cervana/.env
     ports:
       - "3000:3000"
     volumes:
-      - ./web:/app
+      - ./web-cervana:/app
     command: pnpm dev --host 0.0.0.0 --port 3000
     environment:
       NUXT_PUBLIC_API_URL: http://api:3002
@@ -90,15 +90,15 @@ services:
       - cervana_network
 
   admin:
-    build: ./admin
+    build: ./admin-cervana
     container_name: cervana_admin
     restart: always
     env_file:
-      - ./admin/.env
+      - ./admin-cervana/.env
     ports:
       - "3001:3001"
     volumes:
-      - ./admin:/app
+      - ./admin-cervana:/app
     command: pnpm dev --host 0.0.0.0 --port 3001
     environment:
       PUBLIC_API_URL: http://api:3002
